@@ -1,0 +1,743 @@
+definitions:
+  dto.ArticlePreview:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      is_published:
+        type: boolean
+      published_at:
+        type: string
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.ArticleRequest:
+    properties:
+      content:
+        maxLength: 80000
+        minLength: 50
+        type: string
+      slug:
+        maxLength: 100
+        minLength: 3
+        type: string
+      title:
+        maxLength: 200
+        minLength: 5
+        type: string
+    required:
+    - content
+    - slug
+    - title
+    type: object
+  dto.ArticleResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      is_published:
+        type: boolean
+      published_at:
+        type: string
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.AuthResponse:
+    properties:
+      authentication_token:
+        type: string
+      expiry:
+        type: string
+    type: object
+  dto.ContactForm:
+    properties:
+      email:
+        maxLength: 254
+        type: string
+      message:
+        maxLength: 5000
+        minLength: 10
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - message
+    - name
+    type: object
+  dto.UserRequest:
+    properties:
+      email:
+        maxLength: 254
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  utils.Envelope:
+    additionalProperties: {}
+    type: object
+info:
+  contact: {}
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Get the health status and system information of the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: API health status
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                status:
+                  type: string
+                system_info:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Health check endpoint
+      tags:
+      - system
+  /v1/articles:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all published articles with previews
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of published articles
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ArticlePreview'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: List published articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Create a new article with title, slug, and content
+      parameters:
+      - description: Article data
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Article created successfully
+        "400":
+          description: Invalid JSON body or validation error
+          schema:
+            type: string
+        "409":
+          description: article already exists
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Create a new article
+      tags:
+      - articles
+  /v1/articles/all:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all articles including unpublished ones (admin endpoint)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all articles
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ArticlePreview'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: List all articles (including unpublished)
+      tags:
+      - articles
+  /v1/articles/id/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Move an article to trash (soft delete)
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article moved to trash successfully
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Soft delete an article
+      tags:
+      - articles
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an article by its ID
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article preview
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ArticlePreview'
+              type: object
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Get article by ID
+      tags:
+      - articles
+    put:
+      consumes:
+      - application/json
+      description: Update an existing article by ID
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated article data
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article updated successfully
+        "400":
+          description: Invalid JSON body or validation error
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "409":
+          description: Article with slug already exists
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Update an existing article
+      tags:
+      - articles
+  /v1/articles/id/{id}/permanent:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete an article from the database. The article must
+        be soft-deleted first.
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article permanently deleted
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "409":
+          description: Article must be soft deleted before permanent deletion
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Permanently delete an article
+      tags:
+      - articles
+  /v1/articles/id/{id}/publish:
+    patch:
+      consumes:
+      - application/json
+      description: Mark an article as published
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article published successfully
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Publish an article
+      tags:
+      - articles
+  /v1/articles/id/{id}/restore:
+    post:
+      consumes:
+      - application/json
+      description: Restore an article from trash
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article restored successfully
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Restore a deleted article
+      tags:
+      - articles
+  /v1/articles/id/{id}/unpublish:
+    patch:
+      consumes:
+      - application/json
+      description: Mark an article as unpublished
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article unpublished successfully
+        "400":
+          description: Invalid ID parameter
+          schema:
+            type: string
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Unpublish an article
+      tags:
+      - articles
+  /v1/articles/slug/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a published article by its URL slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Article details
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ArticleResponse'
+              type: object
+        "404":
+          description: Article not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get article by slug
+      tags:
+      - articles
+  /v1/articles/trash:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all soft-deleted articles in trash
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of deleted articles
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ArticlePreview'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: List deleted articles
+      tags:
+      - articles
+  /v1/auth/token:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password to get an authentication
+        token
+      parameters:
+      - description: Authentication credentials
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Authentication token created successfully
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Invalid request data
+          schema:
+            type: string
+        "401":
+          description: Invalid credentials
+          schema:
+            type: string
+        "404":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create authentication token
+      tags:
+      - authentication
+  /v1/contact:
+    post:
+      consumes:
+      - application/json
+      description: Submit a contact form message that will be sent via email
+      parameters:
+      - description: Contact form data
+        in: body
+        name: contact
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ContactForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message sent successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Envelope'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            type: string
+        "500":
+          description: Email sending failed
+          schema:
+            type: string
+      summary: Submit contact form
+      tags:
+      - contact
+  /v1/resume:
+    get:
+      consumes:
+      - application/json
+      description: Download the latest resume as a PDF file
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF resume file
+          schema:
+            type: file
+        "404":
+          description: Resume file not found
+          schema:
+            type: string
+        "500":
+          description: Resume storage service unavailable or internal server error
+          schema:
+            type: string
+      summary: Download resume
+      tags:
+      - resume
+  /v1/users:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete the authenticated user's account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User account deleted successfully
+        "401":
+          description: Unauthorized - authentication required
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user account
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and password
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: User registered successfully, activation required
+        "400":
+          description: Invalid request data or validation error
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - users
+  /v1/users/activate:
+    patch:
+      consumes:
+      - application/json
+      description: Activate a user account using an activation token
+      parameters:
+      - description: Activation token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User account activated successfully
+        "400":
+          description: Invalid or expired activation token
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Activate user account
+      tags:
+      - users
+  /v1/users/deactivate:
+    patch:
+      consumes:
+      - application/json
+      description: Deactivate the authenticated user's account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User account deactivated successfully
+        "401":
+          description: Unauthorized - authentication required
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Deactivate user account
+      tags:
+      - users
+swagger: "2.0"

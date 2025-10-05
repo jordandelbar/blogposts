@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>New Contact Form Submission</title>
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen, Ubuntu, Cantarell, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f8f9fa;
+            }
+            .container {
+                background: white;
+                border-radius: 8px;
+                padding: 40px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #e5e7eb;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #6699cc;
+                margin-bottom: 10px;
+            }
+            h1 {
+                color: #1f2937;
+                margin-bottom: 20px;
+                font-size: 24px;
+            }
+            .contact-info {
+                background: #f9fafb;
+                border-radius: 6px;
+                padding: 20px;
+                margin: 20px 0;
+                border-left: 4px solid #10b981;
+            }
+            .field {
+                margin-bottom: 15px;
+            }
+            .field-label {
+                font-weight: bold;
+                color: #374151;
+                display: block;
+                margin-bottom: 5px;
+            }
+            .field-value {
+                color: #1f2937;
+                padding: 8px 12px;
+                background: white;
+                border-radius: 4px;
+                border: 1px solid #d1d5db;
+            }
+            .message-content {
+                background: #ffffff;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                padding: 15px;
+                white-space: pre-wrap;
+                font-family: inherit;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">Personal Website</div>
+                <h1>📨 New Contact Form Submission</h1>
+            </div>
+
+            <p>
+                You have received a new message through your website's contact
+                form.
+            </p>
+
+            <div class="contact-info">
+                <div class="field">
+                    <span class="field-label">👤 Name:</span>
+                    <div class="field-value">{{.Name}}</div>
+                </div>
+
+                <div class="field">
+                    <span class="field-label">📧 Email:</span>
+                    <div class="field-value">{{.Email}}</div>
+                </div>
+
+                <div class="field">
+                    <span class="field-label">💬 Message:</span>
+                    <div class="message-content">{{.Message}}</div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

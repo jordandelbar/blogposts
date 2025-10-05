@@ -1,0 +1,53 @@
+services:
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    environment:
+      - MINIO_ROOT_USER=testuser
+      - MINIO_ROOT_PASSWORD=testpassword123
+    command: minio server /data --console-address :9090
+    volumes:
+      - minio_data:/data
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  valkey:
+    image: valkey/valkey:8.1.3-alpine
+    ports:
+      - "6379:6379"
+    environment:
+      - VALKEY_PASSWORD=valkeypassword123
+    command: >
+      valkey-server
+      --requirepass valkeypassword123
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "valkeypassword123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  minio_data:
