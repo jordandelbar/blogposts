@@ -1,0 +1,71 @@
+x-common-limits: &common-limits
+  deploy:
+    resources:
+      limits:
+        cpus: "2"
+        memory: 2g
+      reservations:
+        cpus: "2"
+        memory: 2g
+
+services:
+  # FastAPI + Pickle service
+  fastapi-pickle:
+    <<: *common-limits
+    build:
+      context: .
+      dockerfile: serving/fastapi-pickle/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./training/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - onnx-network
+
+  # FastAPI + ONNX service
+  fastapi-onnx:
+    <<: *common-limits
+    build:
+      context: .
+      dockerfile: serving/fastapi-onnx/Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./training/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - onnx-network
+
+  # Axum + ONNX service
+  axum-onnx:
+    <<: *common-limits
+    build:
+      context: .
+      dockerfile: serving/axum-onnx/Dockerfile
+    ports:
+      - "3000:8000"
+    volumes:
+      - ./training/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - onnx-network
+
+networks:
+  onnx-network:
+    driver: bridge

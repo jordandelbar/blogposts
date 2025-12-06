@@ -58,6 +58,7 @@ k8s/secrets.yaml
 /post_1/backend/.coverage
 
 *.pkl
+*.onnx
 *.pth
 post_2/data
 

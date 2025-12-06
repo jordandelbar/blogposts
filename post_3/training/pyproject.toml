@@ -1,0 +1,24 @@
+[project]
+name = "training"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "kagglehub>=0.3.13",
+    "onnx>=1.18.0",
+    "onnxmltools>=1.14.0",
+    "onnxruntime>=1.22.1",
+    "optuna>=4.5.0",
+    "polars>=1.32.3",
+    "pyarrow>=21.0.0",
+    "scikit-learn>=1.7.2",
+    "skl2onnx>=1.19.1",
+    "xgboost>=3.0.0,<3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "netron>=8.7.6",
+    "httpx>=0.28.0",
+    "pyright>=1.1.407",
+    "tabulate>=0.9.0",
+]

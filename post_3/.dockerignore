@@ -1,0 +1,63 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README*
+LICENSE
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Build tools
+Makefile
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+.venv/
+venv/
+env/
+ENV/
+pip-log.txt
+.mypy_cache/
+.ruff_cache/
+
+# Rust
+target/
+.cargo/
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Training & Testing (mounted as volumes)
+training/
+load-testing/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
